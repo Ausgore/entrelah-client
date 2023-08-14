@@ -7,8 +7,9 @@ import { MdLocationOn } from "react-icons/md";
 import { BiSolidUser } from "react-icons/bi";
 import { BsStarFill, BsStarHalf, BsStar } from "react-icons/bs";
 import ms from "ms";
+import { SellerNav } from "@components/SellerNav/SellerNav";
 
-export default function Profile() {
+export function Profile() {
 	const { username } = useParams();
 	const location = useLocation();
 	const queryParams = new URLSearchParams(location.search);
@@ -21,13 +22,13 @@ export default function Profile() {
 	useEffect(function () {
 		api.get(`user?username=${username}`).then(function (response) {
 			if (!response.data[0]) return navigate("/404");
-			if (response.data[0].id == user?.id) navigate(`/${response.data[0].username}?public=true`);
+			if (!isPublic && response.data[0].id != user?.id) navigate("?public=true");
 			const [data] = response.data;
 			setViewedUser(data);
 			setDescription(data.description);
 			setBio(data.bio);
 		});
-	}, []);
+	}, [username]);
 
 	// Edit Bio
 	const bioRef = useRef<HTMLTextAreaElement>(null);
@@ -39,7 +40,7 @@ export default function Profile() {
 		if (bioRef.current) bioRef.current.style.height = `${bioRef.current.scrollHeight}px`;
 	}
 	// Need to look into this more, useLayoutEffect isn't working as intended
-	useEffect(() => { setTimeout(() => resizeBioArea(), 50) }, []);
+	useEffect(() => { setTimeout(() => resizeBioArea(), 50) }, [username]);
 	// Edit Bio
 
 	// Edit Description
@@ -62,7 +63,7 @@ export default function Profile() {
 
 	return (
 		<>
-			<CustomerNav />
+			{isPublic ? <CustomerNav /> : <SellerNav />}
 			<div className="relative pb-12 pt-40">
 				<div className="container mx-auto">
 					<div className="grid grid-cols-12">
@@ -71,7 +72,7 @@ export default function Profile() {
 							{/* Profile */}
 							<section className="border bg-white shadow-md p-8">
 								{/* Image */}
-								<div className="flex justify-center"> <img src="placeholder.webp" alt="profile" className="rounded-full w-32" /> </div>
+								<div className="flex justify-center"> <img src="/placeholder.webp" alt="profile" className="rounded-full w-32" /> </div>
 								{/* User Information */}
 								<div className="text-center mt-4">
 									{/* Display Name */}
@@ -82,7 +83,7 @@ export default function Profile() {
 									{((isPublic && viewedUser?.bio) || !isPublic) && <div className="mt-1 mb-2">
 										{isPublic && viewedUser?.bio && <h3 className="text-gray-600 text-[0.95rem]"> {bio} </h3>}
 										{!isPublic && <textarea spellCheck="false" className="text-[0.95rem] text-gray-600 hover:underline underline-offset-2 text-center outline-none focus:text-gray-700 hover:text-gray-700 w-full placeholder:hover:underline resize-none overflow-hidden" placeholder="What's your story in one line?" maxLength={60} defaultValue={bio} onBlur={updateBio} ref={bioRef} onInput={resizeBioArea} />}
-										{!isPublic && <button className="border font-semibold text-gray-600 tracking-wide border-gray-300 py-1 mb-4 rounded-md w-full lg:w-64 hover:bg-gray-500 hover:border-gray-500 hover:text-white shadow-md" onClick={() => navigate(`/${viewedUser?.username}?public=true`)}> Preview Public Profile </button>}
+										{!isPublic && <button className="border font-semibold text-gray-600 tracking-wide border-gray-300 py-1 mb-4 rounded-md w-full lg:w-64 hover:bg-gray-500 hover:border-gray-500 hover:text-white" onClick={() => navigate("?public=true")}> Preview Public Profile </button>}
 									</div>}
 								</div>
 								<hr className="mt-3" />
@@ -132,10 +133,10 @@ export default function Profile() {
 						<article className="col-span-full lg:col-span-8 lg:mx-8 h-max">
 							{/* No gigs */}
 							{!isPublic && <section className="border bg-white shadow-md p-8 hidden lg:block py-20 mb-8">
-								<div className="flex justify-center"> <img src="profileBecomeSeller.webp" alt="profileBecomeSeller" className="w-56" /> </div>
+								<div className="flex justify-center"> <img src="/profileBecomeSeller.webp" alt="profileBecomeSeller" className="w-56" /> </div>
 								<div className="text-center mt-6">
 									<h1 className="font-semibold text-xl text-gray-600 tracking-tight"> Ready to earn on your own terms? </h1>
-									<button className="bg-red-500 py-2 text-lg px-8 rounded-md text-white font-semibold mt-4"> Become a seller </button>
+									<button className="bg-red-500 py-2 text-lg px-8 rounded-md text-white font-semibold mt-4" onClick={() => navigate("manage_gigs/create?tab=overview")}> Become a seller </button>
 								</div>
 							</section>}
 							{/* Has Reviews */}
@@ -245,7 +246,7 @@ function Review({ review }: ReviewProps) {
 			<li className="py-4">
 				{/* User info */}
 				<div className="flex items-center">
-					<img src="placeholder.webp" className="w-12 rounded-full" alt="profile" />
+					<img src="/placeholder.webp" className="w-12 rounded-full" alt="profile" />
 					<div className="block ml-4 items-center py-1">
 						<span className="font-semibold text-gray-800 tracking-wide"> {review.reviewer.username} </span>
 						<span className="flex text-sm tracking-wider text-[#62646a] items-center"> Singapore </span>

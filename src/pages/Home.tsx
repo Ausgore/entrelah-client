@@ -1,12 +1,14 @@
 import CustomerNav from '@/components/CustomerNav/CustomerNav';
 import { AiOutlineSearch } from "react-icons/ai";
 import { useEffect } from 'react';
+import RegistrationForm from '@/components/RegistrationForm/RegistrationForm';
 
-export default function Home() {
+export function Home() {
 	useEffect(() => { document.title = "Entrelah - Freelance Services Marketplace" }, []);
 
 	return (
 		<>
+			<RegistrationForm />
 			<CustomerNav />
 			{/* Hero Article */}
 			<section className="pt-40 relative">
@@ -24,7 +26,7 @@ export default function Home() {
 						</article>
 						{/* Image */}
 						<article className="hidden lg:block lg:col-span-6">
-							<img src="banner.webp" className="w-[30rem]" alt="banner" />
+							<img src="/banner.webp" className="w-[30rem]" alt="banner" />
 						</article>
 					</div>
 				</div>

@@ -3,7 +3,7 @@ import { PiGearLight } from "react-icons/pi";
 import { MdOutlineLogout } from "react-icons/md";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useUser, useUserUpdate } from "@contexts/UserContext";
 import api from "@api";
 import CollapsibleNavItem from "./components/CollapsibleNavItem";
@@ -54,11 +54,10 @@ export default function MainNavigation() {
 	// Sidebar
 
 	// Logout
-	const navigate = useNavigate();
 	const updateUser = useUserUpdate();
 	function handleLogout() {
 		updateUser(null);
-		navigate("/");
+		window.location.reload();
 	}
 
 	return (
@@ -72,7 +71,7 @@ export default function MainNavigation() {
 						<header className="flex mx-5 mb-4">
 							{/* User */}
 							{user && <>
-								<img src="./placeholder.webp" className=" w-16 rounded-full object-cover cursor-pointer border border-grey-500" alt="avatar" />
+								<img src="/placeholder.webp" className=" w-16 rounded-full object-cover cursor-pointer border border-grey-500" alt="avatar" />
 								<div className="ml-4">
 									<Link to="/" className="mt-auto font-bold text-gray-800"> {user?.username} </Link>
 									<div className="border-red-500 text-red-500 font-semibold"> {user?.currency} {user?.wallet} </div>
@@ -122,7 +121,7 @@ export default function MainNavigation() {
 				</>
 			)}
 			{/* Mainbar */}
-			<nav className="fixed bg-white w-full shadow-md px-6 h-28 z-10">
+			<nav className="fixed bg-white w-full shadow-md px-6 h-28 z-[9]">
 				{/* Title, Search, Account */}
 				<div className="m-auto lg:flex lg:container py-2 my-2 align-middle items-center">
 					{/* Title */}
@@ -143,11 +142,11 @@ export default function MainNavigation() {
 							{/* Switch to Seller */}
 							<Link to="/" className="ml-8 font-semibold text-red-500 tracking-wide"> Switch to Selling </Link>
 							{/* Profile Picture, should be clickable */}
-							<div ref={userOptionsRef}>
-								<img src="./placeholder.webp" className="ml-6 w-10 h-10 rounded-full object-cover cursor-pointer border border-grey-500" alt="avatar" onClick={handleUserOptionsVisible} />
+							<div ref={userOptionsRef} className="relative">
+								<img src="/placeholder.webp" className="ml-6 w-10 h-10 rounded-full object-cover cursor-pointer border border-grey-500" alt="avatar" onClick={handleUserOptionsVisible} />
 								{/* User options */}
 								{userOptionsVisible && (
-									<div className="absolute mt-2 shadow-md bg-white border">
+									<div className="absolute right-0 mt-2 shadow-md bg-white border">
 										{/* Profile */}
 										<div className="py-3 px-4">
 											<h1> {user?.username} </h1>
@@ -155,12 +154,12 @@ export default function MainNavigation() {
 										</div>
 										<hr />
 										{/* Redirects */}
-										<Link to={`/${user?.username}`} className="flex items-center text-gray-600 p-2 pl-4 hover:bg-gray-100"> <PiGearLight className="mr-2" /> Profile </Link>
+										<Link to={`/users/${user?.username}`} className="flex items-center text-gray-600 p-2 pl-4 hover:bg-gray-100"> <PiGearLight className="mr-2" /> Profile </Link>
 										<a onClick={handleLogout} className="flex items-center text-gray-600 p-2 pl-4 hover:bg-gray-100 cursor-pointer"> <MdOutlineLogout className="mr-2" /> Logout </a>
 									</div>
 								)}
 							</div>
-							{/* Pricing */}
+							{/* Balance */}
 							<Link to="/" className="ml-6 border rounded-md border-red-500 text-red-500 font-semibold px-1"> {user?.currency} {user?.wallet} </Link>
 						</>}
 						{!user && <>
