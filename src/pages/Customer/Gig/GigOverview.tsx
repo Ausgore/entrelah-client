@@ -9,6 +9,7 @@ export function GigOverview() {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const queryParams = new URLSearchParams(location.search);
+	const id = queryParams.get("id") as string;
 
 	const [categories, setCategories] = useState<any[]>([]);
 	useEffect(() => { api.get("/category").then(res => setCategories(res.data)) }, []);
@@ -63,7 +64,6 @@ export function GigOverview() {
 		}
 	}
 
-	const id = queryParams.get("id") as string;
 	useEffect(function() { 
 		if (id) {
 			api.get(`/gig/${id}`).then(async function(response) {
@@ -71,7 +71,7 @@ export function GigOverview() {
 				const { data: subcategory } = await api.get(`/subcategory/${response.data.subcategoryId}`);
 				setCategory(subcategory.category);
 				setSubcategory(subcategory);
-			});
+			}).catch(() => navigate(`/users/${user?.username}`));
 		}
 	}, []);
 
@@ -110,7 +110,7 @@ export function GigOverview() {
 								{categories?.map(category => <li key={category.id} onClick={() => handleCategorySelection(category)} className="px-4 py-2 hover:bg-gray-100 cursor-pointer"> {category.name} </li>)}
 							</DropdownInput>
 							<div className="mx-3" />
-							<DropdownInput value={subcategory?.name.toUpperCase()} placeholder="SLECT A SUBCATEGORY" className="w-1/2">
+							<DropdownInput value={subcategory?.name.toUpperCase()} placeholder="SELECT A SUBCATEGORY" className="w-1/2">
 								{categories && !category && (<li className="px-4 py-2 cursor-default text-gray-400"> No options </li>)}
 								{categories && category?.subcategories.map((subcategory: any) => <li key={subcategory.id} onClick={() => setSubcategory(subcategory)} className="px-4 py-2 hover:bg-gray-100 cursor-pointer"> {subcategory.name} </li>)}
 							</DropdownInput>

@@ -1,13 +1,17 @@
 import { SellerNav } from "@components/SellerNav/SellerNav";
 import { ReactNode } from 'react';
 import { FaChevronRight, FaCheck} from "react-icons/fa";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GigOverview } from "./GigOverview";
 import { useUser } from "@/contexts/UserContext";
 import { GigPricing } from "./GigPricing";
+import { GigDescription } from "./GigDescription";
+import { GigGallery } from "./GigGallery";
+import { GigPublish } from "./GigPublish";
 
 const tabs = ["overview", "pricing", "description", "gallery", "publish"];
 export function GigBuilder() {
+	const user = useUser();
 	const location = useLocation();
 	const queryParams = new URLSearchParams(location.search);
 	const tab = queryParams.get("tab") as string;
@@ -16,7 +20,7 @@ export function GigBuilder() {
 	return (
 		<>
 			<SellerNav />
-			<section className="top-20 bg-white w-full border-t border-b shadow-md hidden lg:block fixed">
+			<section className="top-20 bg-white w-full border-t border-b shadow-md hidden lg:block fixed z-[11]">
 				<div className="container mx-auto py-4 flex">
 					<div className="mx-8 flex justify-between w-full">
 						{/* Stages */}
@@ -29,8 +33,8 @@ export function GigBuilder() {
 						</ul>
 						{/* Buttons */}
 						<div>
-							<button> Save </button>
-							<button> Save & Preview </button>
+							<Link to={`/users/${user?.username}`}> <button className="border mr-4 px-2 rounded-md font-semibold text-gray-900 py-1 hover:bg-gray-50"> Save </button> </Link>
+							<Link to={`/users/${user?.username}/${id}`}> <button className="border px-2 rounded-md font-semibold text-gray-900 py-1 hover:bg-gray-50"> Save & Preview </button> </Link>
 						</div>
 					</div>
 				</div>
@@ -48,6 +52,9 @@ export function GigBuilder() {
 					<div className="mt-16 mx-16 2xl:mx-56">
 						{tab == "overview" && <GigOverview />}
 						{tab == "pricing" && <GigPricing />}
+						{tab == "description" && <GigDescription />}
+						{tab == "gallery" && <GigGallery />}
+						{tab == "publish" && <GigPublish />}
 					</div>
 				</div>
 			</div>

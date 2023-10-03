@@ -1,6 +1,6 @@
 import { useUser, useUserUpdate } from "@contexts/UserContext";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from 'react';
 import { FiMail } from "react-icons/fi";
 import { FaRegBell } from "react-icons/fa";
@@ -8,18 +8,12 @@ import { SideNavItem } from "./components/SideNavItem";
 import { MainNavItem } from "./components/MainNavItem";
 import { DropmenuMainNavItem } from "./components/DropmenuMainNavItem";
 import { CollapsibleSideNavItem } from "./components/CollapsibleSideNavItem";
+import { Buffer } from "buffer";
 
 export function SellerNav() {
 	const user = useUser();
 	const userUpdate = useUserUpdate();
 	const navigate = useNavigate();
-
-	// Since this is for the seller side, it's safe to assume that the user just wants to view another user's profile regardless of the queries
-	const location = useLocation();
-	const username = location.pathname.split("/")[2];
-	useEffect(function() {
-		if (user?.username !== username) navigate(`/users/${username}`);
-	}, []);
 
 	// Sidebar
 	const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -75,11 +69,11 @@ export function SellerNav() {
 						<ul className="my-4">
 							<SideNavItem to="/" className="font-semibold"> Dashboard </SideNavItem>
 							<hr className="my-4" />
-							<SideNavItem to="/" className="md:hidden font-semibold"> Inbox </SideNavItem>
+							<SideNavItem to="/inbox" className="md:hidden font-semibold"> Inbox </SideNavItem>
 							<hr className="my-4 md:hidden" />
 							<CollapsibleSideNavItem title="My Business">
 								<SideNavItem to="/"> Orders </SideNavItem>
-								<SideNavItem to={`/users/${user?.username}/manage_gigs`}> Gigs </SideNavItem>
+								<SideNavItem to={`/users/${user?.username}/manage_gigs?type=active`}> Gigs </SideNavItem>
 								<SideNavItem to={`/users/${user?.username}`}> Profile </SideNavItem>
 								<SideNavItem to="/"> Earnings </SideNavItem>
 							</ CollapsibleSideNavItem>
@@ -102,7 +96,7 @@ export function SellerNav() {
 				</>
 			)}
 			{/* Mainbar */}
-			<nav className="fixed bg-white w-full shadow-md px-6 h-20 z-10">
+			<nav className="fixed bg-white w-full shadow-md px-6 h-20 z-[49]">
 				{/* Title, Navigations, Account */}
 				<div className="flex container mx-auto h-full">
 					<div className="flex px-2 items-center justify-between w-full">
@@ -115,8 +109,8 @@ export function SellerNav() {
 							<ul className="gap-8 ml-6 text-gray-600 tracking-wide text-[1.03rem] hidden xl:flex">
 								<MainNavItem to="/" className="rounded-md font-semibold"> Dashboard </MainNavItem>
 								<DropmenuMainNavItem title="My Business">
-									<MainNavItem to="/"> Orders </MainNavItem>
-									<MainNavItem to={`/users/${user?.username}/manage_gigs`}> Gigs </MainNavItem>
+									<MainNavItem to={`/users/${user?.username}/manage_orders?type=active`}> Orders </MainNavItem>
+									<MainNavItem to={`/users/${user?.username}/manage_gigs?type=active`}> Gigs </MainNavItem>
 									<MainNavItem to={`/users/${user?.username}`}> Profile </MainNavItem>
 									<MainNavItem to="/"> Earnings </MainNavItem>
 								</DropmenuMainNavItem>
@@ -131,17 +125,17 @@ export function SellerNav() {
 							{/* Inbox and notification */}
 							<ul className="hidden md:flex gap-5">
 								<li className="p-2 hover:bg-gray-200 rounded-md cursor-pointer"> <FaRegBell size={22} className="text-gray-500" /> </li>
-								<li className="p-2 hover:bg-gray-200 rounded-md cursor-pointer"> <FiMail size={22} className="text-gray-500" /> </li>
+								<li className="p-2 hover:bg-gray-200 rounded-md cursor-pointer" onClick={() => navigate("/inbox")}> <FiMail size={22} className="text-gray-500" /> </li>
 							</ul>
 							{/* Profile picture */}
 							<div className="relative ml-8" ref={userOptionsRef}>
-								<img src="/placeholder.webp" className="rounded-full w-9 cursor-pointer" alt="avatar" onClick={handleUserOptionsVisible} />
+								<img src={user?.avatar?.data ? URL.createObjectURL(new File([new Uint8Array(Buffer.from(user.avatar.data).buffer)], user.avatar.filename, { type: user.avatar.contentType })) : "/placeholder.webp"}className="rounded-full w-9 h-9 cursor-pointer" alt="avatar" onClick={handleUserOptionsVisible} />
 								{/* Dropdown */}
 								{userOptionsVisible && (
 									<div className="absolute w-max right-0 bg-white border shadow-md mt-3 rounded-md py-2">
 										{/* User information */}
 										<div className="flex pt-2 mb-4 px-4 items-center">
-											<img src="/placeholder.webp" className="rounded-full w-12" alt="avatar" />
+											<img src={user?.avatar?.data ? URL.createObjectURL(new File([new Uint8Array(Buffer.from(user.avatar.data).buffer)], user.avatar.filename, { type: user.avatar.contentType })) : "/placeholder.webp"} className="rounded-full w-12 h-12" alt="avatar" />
 											<div className="ml-4">
 												<h1 className="font-semibold"> {user?.username} </h1>
 												<h2 className="text-gray-600"> {user?.email} </h2>

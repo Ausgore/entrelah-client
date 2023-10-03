@@ -3,15 +3,19 @@ import { PiGearLight } from "react-icons/pi";
 import { MdOutlineLogout } from "react-icons/md";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useUser, useUserUpdate } from "@contexts/UserContext";
 import api from "@api";
 import CollapsibleNavItem from "./components/CollapsibleNavItem";
 import SideNavItem from "./components/SideNavItem";
 import NavCategory from "./components/NavCategory";
 import MainNavItem from "./components/MainNavItem";
+import { Buffer } from "buffer";
+import { FaRegBell } from "react-icons/fa";
+import { FiMail } from "react-icons/fi";
 
 export default function MainNavigation() {
+	const navigate = useNavigate();
 	const user = useUser();
 	const [categories, setCategories] = useState<any[]>([]);
 	const [subcategories, setSubcategories] = useState<any[]>([]);
@@ -68,10 +72,10 @@ export default function MainNavigation() {
 					{/* Sidebar */}
 					<nav className="fixed lg:hidden h-full bg-white shadow-2xl z-[11] w-72 overflow-auto py-4" ref={sidebarRef}>
 						{/* Header */}
-						<header className="flex mx-5 mb-4">
+						<header className="flex mx-5 mb-4 items-center">
 							{/* User */}
 							{user && <>
-								<img src="/placeholder.webp" className=" w-16 rounded-full object-cover cursor-pointer border border-grey-500" alt="avatar" />
+								<img src={user?.avatar?.data ? URL.createObjectURL(new File([new Uint8Array(Buffer.from(user.avatar.data).buffer)], user.avatar.filename, { type: user.avatar.contentType })) : "/placeholder.webp"} className=" w-14 h-14 rounded-full object-cover cursor-pointer border border-grey-500" alt="avatar" />
 								<div className="ml-4">
 									<Link to="/" className="mt-auto font-bold text-gray-800"> {user?.username} </Link>
 									<div className="border-red-500 text-red-500 font-semibold"> {user?.currency} {user?.wallet} </div>
@@ -90,7 +94,7 @@ export default function MainNavigation() {
 								<CollapsibleNavItem title="Browse categories">
 									{categories.map(category => (
 										<CollapsibleNavItem title={category.name} key={category.id}>
-											{subcategories.filter(s => s.categoryId == category.id).map(s => <SideNavItem to="/" key={s.id}> {s.name} </SideNavItem>)}
+											{subcategories.filter(s => s.categoryId == category.id).map(s => <SideNavItem to={`/categories/${category.name}/${s.name}`} key={s.id}> {s.name} </SideNavItem>)}
 										</CollapsibleNavItem>
 									))}
 								</CollapsibleNavItem>
@@ -107,7 +111,7 @@ export default function MainNavigation() {
 								<CollapsibleNavItem title="Browse categories">
 									{categories.map(category => (
 										<CollapsibleNavItem title={category.name}>
-											{subcategories.filter(s => s.categoryId == category.id).map(s => <SideNavItem to="/" key={s.id}> {s.name} </SideNavItem>)}
+											{subcategories.filter(s => s.categoryId == category.id).map(s => <SideNavItem to={`/categories/${category.name}/${s.name}`} key={s.id}> {s.name} </SideNavItem>)}
 										</CollapsibleNavItem>
 									))}
 								</CollapsibleNavItem>
@@ -139,11 +143,15 @@ export default function MainNavigation() {
 					{/* Right nav */}
 					<div className="ml-auto items-center hidden lg:flex">
 						{user && <>
+							<ul className="hidden md:flex gap-5">
+								<li className="p-2 hover:bg-gray-200 rounded-md cursor-pointer"> <FaRegBell size={22} className="text-gray-500" /> </li>
+								<li className="p-2 hover:bg-gray-200 rounded-md cursor-pointer" onClick={() => navigate("/inbox")}> <FiMail size={22} className="text-gray-500" /> </li>
+							</ul>
 							{/* Switch to Seller */}
-							<Link to="/" className="ml-8 font-semibold text-red-500 tracking-wide"> Switch to Selling </Link>
+							<Link to={`/users/${user?.username}/seller_dashboard`} className="ml-8 font-semibold text-red-500 tracking-wide"> Switch to Selling </Link>
 							{/* Profile Picture, should be clickable */}
 							<div ref={userOptionsRef} className="relative">
-								<img src="/placeholder.webp" className="ml-6 w-10 h-10 rounded-full object-cover cursor-pointer border border-grey-500" alt="avatar" onClick={handleUserOptionsVisible} />
+								<img src={user?.avatar?.data ? URL.createObjectURL(new File([new Uint8Array(Buffer.from(user.avatar.data).buffer)], user.avatar.filename, { type: user.avatar.contentType })) : "/placeholder.webp"} className="ml-6 w-10 h-10 rounded-full object-cover cursor-pointer border border-grey-500" alt="avatar" onClick={handleUserOptionsVisible} />
 								{/* User options */}
 								{userOptionsVisible && (
 									<div className="absolute right-0 mt-2 shadow-md bg-white border">
@@ -174,7 +182,7 @@ export default function MainNavigation() {
 				{/* Categories */}
 				<ul className="m-auto hidden lg:flex container pt-2 justify-between font-semibold text-gray-600 text-sm xl:text-base">
 					{categories.map(category => <MainNavItem title={category.name} key={category.id}>
-						{subcategories.filter(s => s.categoryId == category.id).map(s => <SideNavItem className="hover:bg-gray-100 hover:text-current cursor-pointer" to="/" key={s.id}> {s.name} </SideNavItem>)}
+						{subcategories.filter(s => s.categoryId == category.id).map(s => <SideNavItem className="hover:bg-gray-100 hover:text-current cursor-pointer" to={`/categories/${category.name}/${s.name}`} key={s.id}> {s.name} </SideNavItem>)}
 					</MainNavItem>)}
 				</ul>
 			</nav>

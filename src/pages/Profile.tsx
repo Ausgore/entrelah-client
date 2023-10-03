@@ -1,13 +1,19 @@
 import CustomerNav from "@components/CustomerNav/CustomerNav";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import api from "@api";
-import { useState, useEffect, FormEvent, useRef } from "react";
-import { useUser } from "@contexts/UserContext";
+import { useState, useEffect, FormEvent, useRef, ReactNode, ChangeEvent, Fragment } from "react";
+import { useUser, useUserUpdate } from "@contexts/UserContext";
 import { MdLocationOn } from "react-icons/md";
 import { BiSolidUser } from "react-icons/bi";
 import { BsStarFill, BsStarHalf, BsStar } from "react-icons/bs";
 import ms from "ms";
 import { SellerNav } from "@components/SellerNav/SellerNav";
+import { GigCard } from "@/components/GigCard";
+import { AiFillPlusCircle } from "react-icons/ai";
+import { BsFillCameraFill } from "react-icons/bs";
+import { useAnimation, motion } from 'framer-motion';
+import { fileToBase64 } from "@/utils/fileToBase64";
+import { Buffer } from "buffer";
 
 export function Profile() {
 	const { username } = useParams();
@@ -16,17 +22,33 @@ export function Profile() {
 	const isPublic = queryParams.get("public");
 
 	const [viewedUser, setViewedUser] = useState<any>(null);
+	const [gigFilter, setGigFilter] = useState(0);
+
 	const user = useUser();
 	const navigate = useNavigate();
 
+	useEffect(function() {
+		if (user?.username !== username) navigate(`/users/${username}?public=true`);
+	}, []);
+
 	useEffect(function () {
-		api.get(`user?username=${username}`).then(function (response) {
+		api.get(`user?username=${username}`).then(async response => {
 			if (!response.data[0]) return navigate("/404");
 			if (!isPublic && response.data[0].id != user?.id) navigate("?public=true");
-			const [data] = response.data;
+
+			const { data } = await api.get(`user/${response.data[0].id}`);
+
 			setViewedUser(data);
 			setDescription(data.description);
 			setBio(data.bio);
+			// Initial gig filter
+			if (!isPublic) {
+				// Gig status
+				if (data.gigs.filter((g: any) => g.status == 2).length > 0) setGigFilter(2);
+				if (data.gigs.filter((g: any) => g.status == 1).length > 0) setGigFilter(1);
+				else if (data.gigs.filter((g: any) => g.status == 0).length > 0) setGigFilter(0);
+			}
+			// Initial gig filter
 		});
 	}, [username]);
 
@@ -61,10 +83,36 @@ export function Profile() {
 	}
 	// Edit Description
 
+	const pfpControls = useAnimation();
+	const [hoveringPfp, setHoveringPfp] = useState(false);
+	const handlePfpMouseEnter = () => {
+		pfpControls.start({ opacity: 1 });
+		setHoveringPfp(true);
+	}
+	const handlePfpMouseLeave = () => {
+		pfpControls.start({ opacity: 0 });
+		setHoveringPfp(false);
+	}
+
+	const userUpdate = useUserUpdate();
+	const pfpInputRef = useRef<HTMLInputElement>(null);
+	const handlePfpClick = () => pfpInputRef.current?.click();
+	const handlePfpInputChange = async (e: ChangeEvent<HTMLInputElement>) => {
+		const { files } = e.currentTarget;
+		if (files?.length) {
+			const [file] = files;
+			const base64Data = await fileToBase64(file);
+			const { data } = await api.post(`user/${user?.id}/avatar/upload`, { filename: file.name, filesize: file.size, contentType: file.type, base64Data });
+			setViewedUser(data);
+			if (user?.id) userUpdate({ ...user, avatar: data.avatar });
+		}
+	}
+
+
 	return (
 		<>
 			{isPublic ? <CustomerNav /> : <SellerNav />}
-			<div className="relative pb-12 pt-40">
+			<div className={`relative pb-12 ${isPublic ? "pt-40" : "pt-32"}`}>
 				<div className="container mx-auto">
 					<div className="grid grid-cols-12">
 						{/* Profiles, Descriptions and so on */}
@@ -72,7 +120,13 @@ export function Profile() {
 							{/* Profile */}
 							<section className="border bg-white shadow-md p-8">
 								{/* Image */}
-								<div className="flex justify-center"> <img src="/placeholder.webp" alt="profile" className="rounded-full w-32" /> </div>
+								<div className={`flex justify-center relative ${isPublic ? "" : "cursor-pointer"} w-32 mx-auto`} onMouseEnter={handlePfpMouseEnter} onMouseLeave={handlePfpMouseLeave}>
+									<img src={viewedUser?.avatar?.data ? URL.createObjectURL(new File([new Uint8Array(Buffer.from(viewedUser.avatar.data).buffer)], viewedUser.avatar.filename, { type: viewedUser.avatar.contentType })) : "/placeholder.webp"} alt="profile" className="rounded-full w-32 h-32" />
+									{!isPublic && <motion.div initial={{ opacity: hoveringPfp ? 1 : 0 }} animate={pfpControls} className="absolute bg-[rgba(0,0,0,0.6)] w-full rounded-full h-full flex justify-center align-middle items-center" onClick={handlePfpClick}>
+										<input type="file" className="hidden" ref={pfpInputRef} onChange={handlePfpInputChange} accept=".jpg, .jpeg, .png" />
+										<BsFillCameraFill className="text-white" size={50} />
+									</motion.div>}
+								</div>
 								{/* User Information */}
 								<div className="text-center mt-4">
 									{/* Display Name */}
@@ -112,7 +166,9 @@ export function Profile() {
 									</header>
 									{/* Paragraph */}
 									<div className="min-h-[2rem]">
-										<p className={`text-gray-700 mt-2 text-sm ${isEditingDesc ? "hidden" : "block"}`}> {description} </p>
+										<p className={`text-gray-700 mt-2 text-sm ${isEditingDesc ? "hidden" : "block"}`}> 
+											{description?.split("\n").map((str: string, i: number, arr: string[]) => i == arr.length - i ? str : <Fragment key={i}> {str} <br /> </Fragment>)} 
+										</p>
 										<form className={isEditingDesc ? "block" : "hidden"} onSubmit={updateDescription}>
 											<div className="bg-[#f4f4f4] w-full p-4">
 												<textarea className="bg-[#f4f4f4] w-full pr-6 h-28 resize-none outline-none text-gray-600 text-sm" defaultValue={description} placeholder="Please tell us about any hobbies, additional expertise, or anything else you'd like to add." maxLength={600} ref={descriptionRef} />
@@ -132,13 +188,33 @@ export function Profile() {
 						{/* Gigs, reviews, and so on */}
 						<article className="col-span-full lg:col-span-8 lg:mx-8 h-max">
 							{/* No gigs */}
-							{!isPublic && <section className="border bg-white shadow-md p-8 hidden lg:block py-20 mb-8">
+							{!isPublic && viewedUser?.gigs.length < 1 && <section className="border bg-white shadow-md p-8 hidden lg:block py-20 mb-8">
 								<div className="flex justify-center"> <img src="/profileBecomeSeller.webp" alt="profileBecomeSeller" className="w-56" /> </div>
 								<div className="text-center mt-6">
 									<h1 className="font-semibold text-xl text-gray-600 tracking-tight"> Ready to earn on your own terms? </h1>
 									<button className="bg-red-500 py-2 text-lg px-8 rounded-md text-white font-semibold mt-4" onClick={() => navigate("manage_gigs/create?tab=overview")}> Become a seller </button>
 								</div>
 							</section>}
+							{isPublic && viewedUser?.gigs.filter((g: any) => g.status == 1).length > 0 && <h1 className="mb-8 text-2xl font-semibold text-gray-700"> {viewedUser?.username}'s Gigs </h1>}
+							{/* Has gigs */}
+							{/* The tab to select whether they want to view active or drafted gigs */}
+							{!isPublic && viewedUser?.gigs.length > 0 && <section className="bg-white border px-6 mt-8 mb-8 lg:mt-0 shadow-md items-center hidden lg:flex">
+								<GigFilterCategory viewedUser={viewedUser} handleGigFilter={() => setGigFilter(1)} gigFilter={gigFilter} desiredFilter={1}> Active </GigFilterCategory>
+								<GigFilterCategory viewedUser={viewedUser} handleGigFilter={() => setGigFilter(0)} gigFilter={gigFilter} desiredFilter={0}> Drafts </GigFilterCategory>
+								<GigFilterCategory viewedUser={viewedUser} handleGigFilter={() => setGigFilter(2)} gigFilter={gigFilter} desiredFilter={2}> Paused </GigFilterCategory>
+							</section>}
+							{/* Gigs to show */}
+							{viewedUser?.gigs.length > 0 && <div className={`hidden lg:grid ${!isPublic ? "2xl:grid-cols-4 lg:grid-cols-3" : "xl:grid-cols-3 lg:grid-cols-2"} gap-3 ${isPublic ? viewedUser?.gigs.filter((g: any) => g.status == 1).length > 0 ? "mb-8" : "" : "mb-8"}`}>
+								{/* The gig cards to show */}
+								{viewedUser?.gigs.filter((g: any) => isPublic ? g.status == 1 : g.status == gigFilter).map((gig: any) => <GigCard gig={gig} public={isPublic == "true"} key={gig.id} setViewedUser={setViewedUser} />)}
+								{/* Create gig card if it's not public */}
+								{!isPublic && <Link to="manage_gigs/create?tab=overview">
+									<div className="bg-white grid-cols-1 min-h-[260px] border border-gray-300 box-border shadow-md flex flex-col justify-center items-center">
+										<AiFillPlusCircle size={65} className="text-[#222325] mb-4" />
+										<p className="font-bold text-gray-600"> Create a new Gig </p>
+									</div>
+								</Link>}
+							</div>}
 							{/* Has Reviews */}
 							{(viewedUser?.reviewsReceived.length > 0) && <section className="border bg-white shadow-md p-8 mt-8 lg:mt-0">
 								<SellerReviewsSection reviews={viewedUser?.reviewsReceived.filter((r: any) => r.reviewType == "seller")} />
@@ -149,6 +225,22 @@ export function Profile() {
 				</div>
 			</div>
 		</>
+	);
+}
+
+interface GigFilterCategoryProps {
+	viewedUser: any;
+	gigFilter: number;
+	handleGigFilter: () => void;
+	desiredFilter: number;
+	children: ReactNode;
+}
+function GigFilterCategory(props: GigFilterCategoryProps) {
+	return (
+		props.viewedUser.gigs.filter((g: any) => g.status == props.desiredFilter).length > 0 &&
+		<span className={`py-4 mx-4 font-semibold uppercase border-b-[3px] ${props.gigFilter == props.desiredFilter ? "border-b-red-500" : "border-b-white"} ${props.gigFilter !== props.desiredFilter ? "text-gray-500 hover:text-red-500" : "text-gray-800"} cursor-pointer`} onClick={props.handleGigFilter}>
+			{props.children}
+		</span>
 	);
 }
 

@@ -5,6 +5,7 @@ interface iUser {
 	username: string;
 	email: string;
 	wallet: number;
+	avatar?: any;
 	currency: string;
 }
 const UserContext = createContext<iUser | null>(null);

@@ -30,7 +30,7 @@ export default function LoginForm(props: LoginFormProps) {
 			const response = await api.post(`/user/authenticate`, { identifier, password }).catch(() => null);
 			if (!response) return setErrors({ identifier: "Invalid username/email", password: "Invalid password" });
 			const { data } = response;
-			updateUser({ id: data.id, username: data.username, email: data.email, wallet: data.wallet, currency: data.currency });
+			updateUser({ id: data.id, username: data.username, email: data.email, wallet: data.wallet, currency: data.currency, avatar: data.avatar });
 			navigate("/");
 		}
 	}

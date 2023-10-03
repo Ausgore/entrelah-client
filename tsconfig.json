@@ -6,10 +6,11 @@
     "module": "ESNext",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
       "@api": ["src/api"],
       "@components/*": ["src/components/*"],
-      "@contexts/*": ["src/contexts/*"]
+      "@contexts/*": ["src/contexts/*"],
+      "@storage": ["src/firebase"],
+      "@/*": ["src/*"]
     },
     "skipLibCheck": true,
 

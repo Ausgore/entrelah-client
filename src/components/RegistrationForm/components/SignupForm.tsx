@@ -51,7 +51,7 @@ export default function SignupForm(props: SignupFormProps) {
 			
 			response = await api.post(`/user`, { username, password, email }).catch(() => null);
 			if (response) {
-				updateUser({ id: response.data.id, username: response.data.username, wallet: response.data.wallet, currency: response.data.currency, email: response.data.email });
+				updateUser({ id: response.data.id, username: response.data.username, wallet: response.data.wallet, currency: response.data.currency, email: response.data.email, avatar: response.data.avatar });
 				navigate("/");
 			}
 		}
