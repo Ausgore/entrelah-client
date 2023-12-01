@@ -67,20 +67,20 @@ export function SellerNav() {
 						<hr />
 						{/* Navigations */}
 						<ul className="my-4">
-							<SideNavItem to="/" className="font-semibold"> Dashboard </SideNavItem>
+							{/* <SideNavItem to="/" className="font-semibold"> Dashboard </SideNavItem> */}
 							<hr className="my-4" />
 							<SideNavItem to="/inbox" className="md:hidden font-semibold"> Inbox </SideNavItem>
 							<hr className="my-4 md:hidden" />
 							<CollapsibleSideNavItem title="My Business">
-								<SideNavItem to="/"> Orders </SideNavItem>
+								<SideNavItem to={`/users/${user?.username}/manage_orders`}> Orders </SideNavItem>
 								<SideNavItem to={`/users/${user?.username}/manage_gigs?type=active`}> Gigs </SideNavItem>
 								<SideNavItem to={`/users/${user?.username}`}> Profile </SideNavItem>
-								<SideNavItem to="/"> Earnings </SideNavItem>
+								{/* <SideNavItem to="/"> Earnings </SideNavItem> */}
 							</ CollapsibleSideNavItem>
-							<CollapsibleSideNavItem title="Analytics">
+							{/* <CollapsibleSideNavItem title="Analytics">
 								<SideNavItem to="/"> Overview </SideNavItem>
 								<SideNavItem to="/"> Repeat Business </SideNavItem>
-							</ CollapsibleSideNavItem>
+							</ CollapsibleSideNavItem> */}
 							<CollapsibleSideNavItem title="Account">
 								<SideNavItem to={`/users/${user?.username}`}> Profile </SideNavItem>
 								<SideNavItem to="/"> Settings </SideNavItem>
@@ -107,17 +107,17 @@ export function SellerNav() {
 							<Link to="/" className="flex flex-grow justify-center lg:flex-none mr-6 text-3xl font-bold text-red-500"> Entrelah </Link>
 							{/* Navigations */}
 							<ul className="gap-8 ml-6 text-gray-600 tracking-wide text-[1.03rem] hidden xl:flex">
-								<MainNavItem to="/" className="rounded-md font-semibold"> Dashboard </MainNavItem>
+								{/* <MainNavItem to="/" className="rounded-md font-semibold"> Dashboard </MainNavItem> */}
 								<DropmenuMainNavItem title="My Business">
 									<MainNavItem to={`/users/${user?.username}/manage_orders?type=active`}> Orders </MainNavItem>
 									<MainNavItem to={`/users/${user?.username}/manage_gigs?type=active`}> Gigs </MainNavItem>
 									<MainNavItem to={`/users/${user?.username}`}> Profile </MainNavItem>
-									<MainNavItem to="/"> Earnings </MainNavItem>
+									{/* <MainNavItem to="/"> Earnings </MainNavItem> */}
 								</DropmenuMainNavItem>
-								<DropmenuMainNavItem title="Analytics">
+								{/* <DropmenuMainNavItem title="Analytics">
 									<MainNavItem to="/"> Overview </MainNavItem>
 									<MainNavItem to="/"> Repeat Business </MainNavItem>
-								</DropmenuMainNavItem>
+								</DropmenuMainNavItem> */}
 							</ul>
 						</div>
 						{/* Profile */}
@@ -152,7 +152,7 @@ export function SellerNav() {
 									</div>
 								)}
 							</div>
-							<Link to="/" className="ml-8 border rounded-md border-black font-semibold px-1"> {user?.currency} {user?.wallet} </Link>
+							{/* <Link to="/" className="ml-8 border rounded-md border-black font-semibold px-1"> {user?.currency} {user?.wallet} </Link> */}
 						</div>
 					</div>
 				</div>

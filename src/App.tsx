@@ -8,10 +8,12 @@ import { GigBuilder } from './pages/Customer/Gig/GigBuilder';
 import { ManageGigs } from './pages/Customer/Gig/ManageGigs';
 import { Gig } from './pages/Customer/Gig/Gig';
 import { Payment } from './pages/Customer/Payment';
-import { Order } from './pages/Order/Order';
-import { ManageOrders } from "./pages/Order/ManageOrders";
+import { Order } from './pages/Order/Seller/Order';
+import { ManageOrders } from "./pages/Order/Seller/ManageOrders";
 import { Inbox } from "./pages/Inbox";
 import { Search } from "./pages/Search";
+import { Login } from "./pages/Login";
+import { Orders } from "./pages/Order/Customer/Orders";
 
 export default function App() {
 	return (
@@ -23,7 +25,8 @@ export default function App() {
 						<Route path="*" element={<NotFound />} />
 						<Route path="/404" element={<NotFound />} />
 
-						<Route path="/categories/:category/:subcategory" element={<Search />} />
+						<Route path="/login" element={<Login />} />
+						<Route path="/categories/:category/:subcategory?" element={<Search />} />
 						<Route path="/search" element={<Search />} />
 
 						<Route path="/inbox/:username?" element={<Inbox />} />
@@ -34,6 +37,7 @@ export default function App() {
 
 						<Route path="/users/:username" element={<Profile />} />
 						<Route path="/users/:username/manage_orders" element={<ManageOrders />} />
+						<Route path="/users/:username/orders/:id?" element={<Orders />} />
 						<Route path="/users/:username/seller_dashboard" element={<Profile />} />
 						<Route path="/users/:username/:gigId" element={<Gig />} />
 						<Route path="/users/:username/manage_gigs" element={<ManageGigs />} />

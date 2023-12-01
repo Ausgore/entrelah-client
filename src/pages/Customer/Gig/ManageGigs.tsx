@@ -92,6 +92,7 @@ interface GigRowProps {
 	filter: (gig: any) => boolean | undefined;
 }
 function GigRow(props: GigRowProps) {
+	const navigate = useNavigate();
 	const user = useUser();
 	const ref = useRef<HTMLDivElement>(null);
 	const [menuOpen, setMenuOpen] = useState(false);
@@ -125,7 +126,7 @@ function GigRow(props: GigRowProps) {
 
 	return <tr className={`text-[0.95rem] text-gray-600 items-center hover:bg-gray-50 ${props.index != props.gigs.filter(props.filter).length - 1 ? "border-b border-gray-200" : ""}`}>
 		<td></td>
-		<td className="py-4">{props.gig.title}</td>
+		<td className="py-4 hover:text-blue-500 cursor-pointer" onClick={() => navigate(`/users/${user?.username}/${props.gig.id}`)}>{props.gig.title}</td>
 		<td>{props.gig.impressions ?? 0}</td>
 		<td>{props.gig.clicks ?? 0}</td>
 		<td>{props.gig.packages.reduce((a: number, p: any) => a + p.orders.filter((o: any) => o.status != 3).length, 0)}</td>

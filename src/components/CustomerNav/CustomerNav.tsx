@@ -2,7 +2,7 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { PiGearLight } from "react-icons/pi";
 import { MdOutlineLogout } from "react-icons/md";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, KeyboardEvent, ChangeEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser, useUserUpdate } from "@contexts/UserContext";
 import api from "@api";
@@ -14,7 +14,11 @@ import { Buffer } from "buffer";
 import { FaRegBell } from "react-icons/fa";
 import { FiMail } from "react-icons/fi";
 
-export default function MainNavigation() {
+interface MainNavigationProps {
+	hideOrders?: boolean;
+}
+
+export default function CustomerNav(props: MainNavigationProps) {
 	const navigate = useNavigate();
 	const user = useUser();
 	const [categories, setCategories] = useState<any[]>([]);
@@ -64,6 +68,18 @@ export default function MainNavigation() {
 		window.location.reload();
 	}
 
+	const [inputValue, setInputValue] = useState("");
+	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+		setInputValue(e.target.value);
+	}
+	const handleKeydown = (e: KeyboardEvent<HTMLInputElement>) => {
+		if (e.key == "Enter") handleSearch();
+	}
+
+	const handleSearch = () => {
+		if (inputValue.length)	navigate(`/search?query=${inputValue}`);
+	}
+
 	return (
 		<>
 			{/* Sidebar Mobile */}
@@ -78,7 +94,7 @@ export default function MainNavigation() {
 								<img src={user?.avatar?.data ? URL.createObjectURL(new File([new Uint8Array(Buffer.from(user.avatar.data).buffer)], user.avatar.filename, { type: user.avatar.contentType })) : "/placeholder.webp"} className=" w-14 h-14 rounded-full object-cover cursor-pointer border border-grey-500" alt="avatar" />
 								<div className="ml-4">
 									<Link to="/" className="mt-auto font-bold text-gray-800"> {user?.username} </Link>
-									<div className="border-red-500 text-red-500 font-semibold"> {user?.currency} {user?.wallet} </div>
+									{/* <div className="border-red-500 text-red-500 font-semibold"> {user?.currency} {user?.wallet} </div> */}
 								</div>
 							</>}
 							{/* Non-user join button */}
@@ -104,10 +120,10 @@ export default function MainNavigation() {
 								<SideNavItem to="/"> Start Selling </SideNavItem>
 								<NavCategory> General </NavCategory>
 								<SideNavItem to="/"> Settings </SideNavItem>
-								<SideNavItem to="/"> Logout </SideNavItem>
+								<SideNavItem to="/" onClick={handleLogout}> Logout </SideNavItem>
 							</>}
 							{!user && <>
-								<SideNavItem to="/"> Sign In </SideNavItem>
+								<SideNavItem to="/login"> Sign In </SideNavItem>
 								<CollapsibleNavItem title="Browse categories">
 									{categories.map(category => (
 										<CollapsibleNavItem title={category.name}>
@@ -137,8 +153,8 @@ export default function MainNavigation() {
 					{/* Search */}
 					<div className="mx-2 lg:ml-6 flex mt-3 lg:mt-0 align-middle justify-center">
 						{/* Input */}
-						<input className="border-t-2 border-l-2 border-r-2 lg:border-r-0 border-b-2 p-1 px-4 rounded-l-sm border-gray-300 w-full lg:w-96" placeholder="Find Services" />
-						<button className="bg-red-500 w-9 hidden items-center justify-center rounded-r-sm text-white lg:flex"> <AiOutlineSearch size={20} /> </button>
+						<input className="border-t-2 border-l-2 border-r-2 lg:border-r-0 border-b-2 p-1 px-4 rounded-l-sm border-gray-300 w-full lg:w-96 outline-none" value={inputValue} onChange={handleChange} onKeyDown={handleKeydown} placeholder="Find Services" />
+						<button className="bg-red-500 w-9 hidden items-center justify-center rounded-r-sm text-white lg:flex" onClick={handleSearch}> <AiOutlineSearch size={20} /> </button>
 					</div>
 					{/* Right nav */}
 					<div className="ml-auto items-center hidden lg:flex">
@@ -148,7 +164,8 @@ export default function MainNavigation() {
 								<li className="p-2 hover:bg-gray-200 rounded-md cursor-pointer" onClick={() => navigate("/inbox")}> <FiMail size={22} className="text-gray-500" /> </li>
 							</ul>
 							{/* Switch to Seller */}
-							<Link to={`/users/${user?.username}/seller_dashboard`} className="ml-8 font-semibold text-red-500 tracking-wide"> Switch to Selling </Link>
+							{!props.hideOrders && <Link to={`/users/${user?.username}/orders`} className="mx-4 font-semibold tracking-wide text-gray-500 cursor-pointer"> Orders </Link>}
+							{/* <Link to={`/users/${user?.username}/seller_dashboard`} className="ml-4 font-semibold text-red-500 tracking-wide"> Switch to Selling </Link> */}
 							{/* Profile Picture, should be clickable */}
 							<div ref={userOptionsRef} className="relative">
 								<img src={user?.avatar?.data ? URL.createObjectURL(new File([new Uint8Array(Buffer.from(user.avatar.data).buffer)], user.avatar.filename, { type: user.avatar.contentType })) : "/placeholder.webp"} className="ml-6 w-10 h-10 rounded-full object-cover cursor-pointer border border-grey-500" alt="avatar" onClick={handleUserOptionsVisible} />
@@ -168,12 +185,12 @@ export default function MainNavigation() {
 								)}
 							</div>
 							{/* Balance */}
-							<Link to="/" className="ml-6 border rounded-md border-red-500 text-red-500 font-semibold px-1"> {user?.currency} {user?.wallet} </Link>
+							{/* <Link to="/" className="ml-6 border rounded-md border-red-500 text-red-500 font-semibold px-1"> {user?.currency} {user?.wallet} </Link> */}
 						</>}
 						{!user && <>
 							{/* Switch to Seller */}
-							<Link to="/" className="ml-6 font-semibold text-gray-600 hover:text-red-500"> Become a Seller </Link>
-							<Link to="/" className="ml-6 font-semibold text-gray-600 hover:text-red-500"> Sign In </Link>
+							<Link to="/login" className="ml-6 font-semibold text-gray-600 hover:text-red-500"> Become a Seller </Link>
+							<Link to="/login" className="ml-6 font-semibold text-gray-600 hover:text-red-500"> Sign In </Link>
 							<Link to="/" className="ml-6 font-semibold border text-red-500 p-[0.1rem] px-4 border-red-500 rounded-md hover:bg-red-500 hover:text-white"> Join </Link>
 						</>}
 					</div>

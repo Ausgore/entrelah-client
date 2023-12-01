@@ -18,6 +18,7 @@ export function Order() {
 	const [attachment, setAttachment] = useState<any>();
 	const user = useUser();
 
+	
 	useEffect(() => {
 		api.get(`order/${id}`).then(async res => {
 			setOrder(res.data);
@@ -25,6 +26,10 @@ export function Order() {
 			setAttachment(response.data);
 		}).catch(() => navigate("/404"));
 	}, [id]);
+
+	useEffect(() => {
+		if (order?.customerId == user?.id) navigate(`/users/${user?.username}/orders/${order?.id}`, { replace: true });
+	}, [order]);
 
 	useEffect(() => {
 		if (!location.pathname.endsWith(`${id}/activities`) && !location.pathname.endsWith(`${id}/details`)) navigate(`/orders/${id}/activities`);
@@ -45,13 +50,15 @@ export function Order() {
 					</header>
 					{/* Body */}
 					<div className="flex justify-between relative">
+						{/* Left */}
 						<div className="w-full mr-12">
-							{location.pathname.endsWith(`${id}/activities`) && <OrderActivities order={order} />}
+							{location.pathname.endsWith(`${id}/activities`) && <OrderActivities setOrders={setOrder} order={order} />}
 							{location.pathname.endsWith(`${id}/details`) && <OrderDetails order={order} className="pt-8 shadow-lg" />}
 						</div>
+						{/* Right */}
 						<div className="w-full max-w-[20rem] hidden xl:block">
 							{/* Order details */}
-							<div className="bg-white shadow-md w-full py-4">
+							<div className="bg-white shadow-md fixed w-[20rem] py-4 rounded-lg">
 								<header className="mx-4 mb-4">
 									<div className="flex justify-between mb-3 items-center cursor-pointer" onClick={handleOrderDetailsCollapsed}>
 										<h1 className="text-xl font-semibold text-gray-700"> Order details </h1>
@@ -65,7 +72,7 @@ export function Order() {
 										/>}
 										<div className="ml-3 relative w-32">
 											<p className="text-sm text-gray-700 font-semibold"> I will {order?.package.gig.title.substr(0, 20)}{order?.package.gig.title.length > 20 && "..."} </p>
-											<p className={`absolute bottom-0 text-xs font-semibold px-1 text-white ${order?.status == 0 ? "" : order?.status == 1 ? "bg-[#1dbf73]" : "bg-[#74767e]"}`}> {order?.status == 0 ? "Active" : order?.status == 1 ? "Completed" : "Canceled"} </p>
+											<p className={`absolute bottom-0 text-xs font-semibold px-1 text-white ${order?.status == 0 ? "" : order?.status == 2 ? "bg-[#1dbf73]" : "bg-[#74767e]"}`}> {order?.status == 0 ? "Active" : order?.status == 2 ? "Completed" : order?.status == 1 ? "Delivered" : "Cancelled"} </p>
 										</div>
 									</div>
 								</header>

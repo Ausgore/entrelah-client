@@ -10,7 +10,7 @@ import api from '@api';
 import { Buffer } from "buffer";
 import { LuClock3 } from "react-icons/lu";
 import { TbRefresh } from "react-icons/tb";
-import { BiRightArrowAlt } from "react-icons/bi";
+import { BiHomeAlt, BiRightArrowAlt } from "react-icons/bi";
 import commaNumber from "comma-number";
 import { MdKeyboardArrowDown, MdOutlineKeyboardArrowDown, MdOutlineKeyboardArrowUp, MdOutlineClose } from "react-icons/md";
 import ms from "ms";
@@ -184,6 +184,13 @@ export function Gig() {
 				<div className="flex justify-between sm:mx-12 mx-4 relative">
 					{/* Left */}
 					<div className="xl:mr-12">
+						<div className="flex items-center mb-6">
+							<Link to="/" className="hover:bg-gray-100 p-2 rounded-full"> <BiHomeAlt size={14} className="text-gray-800" /> </Link>
+							<p className="text-gray-400 mx-3">/</p>
+							<Link className="text-[0.9rem] text-gray-600 font-[600] hover:underline underline-offset-2" to={`/categories/${gig?.subcategory.category.name}`}>{gig?.subcategory.category.name}</Link>
+							<p className="text-gray-400 mx-3">/</p>
+							<Link className="text-[0.9rem] text-gray-600 font-[600] hover:underline underline-off-set-2" to={`/categories/${gig?.subcategory.category.name}/${gig?.subcategory.name}`}>{gig?.subcategory.name}</Link>
+						</div>
 						<header>
 							{/* Gig Title */}
 							<h1 className="text-3xl font-semibold text-gray-800 mb-4"> I will {gig?.title} </h1>
@@ -217,7 +224,7 @@ export function Gig() {
 									let component = null;
 									if (attachment.type == 0) component = <img src={url} alt="gigattachment" className="h-full border shadow-lg w-full" />;
 									else component = <video controls className="h-full w-full border shadow-lg"><source src={url} /></video>
-									return <SwiperSlide>{component}</SwiperSlide>
+									return <SwiperSlide key={attachment.id}>{component}</SwiperSlide>
 								})}
 							</Swiper>
 						</div>

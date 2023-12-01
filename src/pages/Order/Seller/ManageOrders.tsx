@@ -49,8 +49,6 @@ export function ManageOrders() {
 									<td>Due on</td>
 									{["delivered", "completed"].includes(type) && <td>Delivered at</td>}
 									<td>Total</td>
-									{type == "completed" && <td></td>}
-									<td>Status</td>
 								</tr>
 							</thead>
 							<tbody>
@@ -66,8 +64,6 @@ export function ManageOrders() {
 										<td>{new Date(order.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</td>
 										{["delivered", "completed"].includes(type) && <td>{new Date(order.deliveredAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</td>}
 										<td>{user?.currency} {commaNumber((order.price * order.quantity).toFixed(2))}</td>
-										{type == "completed" && <td>5</td>}
-										<td></td>
 									</tr>
 								})}
 							</tbody>

@@ -69,6 +69,7 @@ export function Inbox() {
 	}, [secondUser]);
 
 	const handleSend = async () => {
+		if (!value.length) return;
 		await api.post(`message/send/${user?.id}?to=${secondUser.id}`, { content: value });
 		const { data: messages } = await api.get(`message/${user?.id}/${secondUser.id}`);
 		setMessages(messages);

@@ -130,7 +130,7 @@ export function Profile() {
 								{/* User Information */}
 								<div className="text-center mt-4">
 									{/* Display Name */}
-									<h1 className="text-lg font-bold text-gray-700"> {viewedUser?.displayName ?? "DisplayName"} </h1>
+									{/* <h1 className="text-lg font-bold text-gray-700"> {viewedUser?.displayName ?? "DisplayName"} </h1> */}
 									{/* Username */}
 									<h2 className=" text-gray-500"> @{viewedUser?.username} </h2>
 									{/* Bio */}
